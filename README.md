@@ -24,6 +24,7 @@ Launch Visual Studio Code on your computer.
 ---
 
 ### 2. Open the Command Palette
+- **Windows/Linux**: Press `Ctrl+Shift+P`  
 - **Mac**: Press `Cmd+Shift+P`
 
 ---
@@ -35,7 +36,7 @@ Launch Visual Studio Code on your computer.
 ---
 
 ### 4. Enter the Repository URL
-- Paste the Git repository URL (`https://github.com/bbtw/spendingCat.git`)
+- Paste the Git repository URL (e.g., `https://github.com/username/repository-name.git`)
 - Press `Enter`
 
 ---
@@ -49,6 +50,43 @@ Launch Visual Studio Code on your computer.
 ### 6. Open the Project
 - After cloning completes, VS Code will ask: "Would you like to open the cloned repository?"
 - Click **"Open"** to start working with the project
+
+---
+
+---
+
+## Switching to a Feature Branch
+
+### 1. Open the Source Control Panel
+- Click the **Source Control** icon in the left sidebar (looks like a branch)
+- Or press `Ctrl+Shift+G` (Windows/Linux) or `Cmd+Shift+G` (Mac)
+
+---
+
+### 2. View Current Branch
+- Look at the bottom-left corner of VS Code
+- You'll see the current branch name (usually `main` or `master`)
+
+---
+
+### 3. Switch/Create Branch
+- Click on the branch name in the bottom-left corner
+- Select one of these options:
+  - **"Create new branch..."** - to create a new feature branch
+  - **"Switch to another branch..."** - to switch to an existing branch
+
+---
+
+### 4. Name Your Feature Branch
+- If creating new: Enter a descriptive name (e.g., `feature/user-login`, `fix/navigation-bug`)
+- If switching: Select the branch from the list
+
+---
+
+### 5. Start Coding
+- You're now working on your feature branch
+- Make your changes and commit them
+- Push your branch when ready: `Ctrl+Shift+P` → `Git: Push`
 
 ---
 
