@@ -24,7 +24,6 @@ Launch Visual Studio Code on your computer.
 ---
 
 ### 2. Open the Command Palette
-- **Windows/Linux**: Press `Ctrl+Shift+P`  
 - **Mac**: Press `Cmd+Shift+P`
 
 ---
