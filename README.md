@@ -61,29 +61,70 @@ The project is now cloned to your local machine and open in VS Code. The next st
 ---
 
 ## Setting Up the Python Virtual Environment
-After opening the project, create a virtual environment to manage its specific dependencies.
+After opening the project, create a virtual environment using the terminal to manage its specific dependencies.
 
 ### Prerequisites for Environment Setup
-- **Install the Python Extension**: Before you start, make sure you have the official 
-[Python extension from Microsoft](https://marketplace.visualstudio.com/items?itemName=ms-python.python) installed in VS Code.
+- **Python Installation**: Ensure Python 3.6 or higher is installed on your system:
+  ```bash
+  python3 --version
+  ```
+  If not installed, download from: [https://python.org/downloads](https://python.org/downloads)
 
 ### Steps to Create the Environment
-1.  **Open the Command Palette**
-    - **Mac**: `Cmd+Shift+P`
 
-2.  **Run the Create Environment Command**
-    - Type **`Python: Create Environment`** and select it from the list.
+1. **Open Terminal in VS Code**
+   - Go to `Terminal > New Terminal` or use the shortcut:
+     - **Mac**: `Ctrl+`` (backtick)
+   - Make sure you're in the project root directory
 
-3.  **Select Environment Type**
-    - Choose **`Venv`** from the options. This uses Python's built-in tool to create the environment.
+2. **Create the Virtual Environment**
+   ```bash
+   python3 -m venv .venv
+   ```
+   This creates a `.venv` folder containing the isolated Python environment.
 
-4.  **Choose a Python Interpreter**
-    - VS Code will show a list of Python versions installed on your system. Select the one you want to use for this project.
-    - VS Code will create a `.venv` folder and ask if you want to use this environment for the workspace. Click **Yes**.
+3. **Activate the Virtual Environment**
+   - **Mac/Linux**:
+     ```bash
+     source .venv/bin/activate
+     ```
+   - **Windows**:
+     ```bash
+     .venv\Scripts\activate
+     ```
+
+4. **Verify Activation**
+   After activation, your terminal prompt should show `(.venv)` at the beginning:
+   ```bash
+   (.venv) your-username@computer:~/path/to/project$
+   ```
+
+5. **Install Project Dependencies** (if requirements.txt exists)
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+6. **Configure VS Code to Use the Virtual Environment**
+   - Open Command Palette (`Cmd+Shift+P` on Mac)
+   - Type `Python: Select Interpreter`
+   - Choose the interpreter from `.venv/bin/python` (or `.venv\Scripts\python.exe` on Windows)
+
+### Managing the Environment
+
+- **Deactivate the environment** when you're done working:
+  ```bash
+  deactivate
+  ```
+
+- **Reactivate the environment** when you return to work:
+  ```bash
+  source .venv/bin/activate  # Mac/Linux
+  .venv\Scripts\activate     # Windows
+  ```
 
 ### Verify the Setup
-- **Terminal**: Open a new terminal (`Terminal > New Terminal`). You should see **`(.venv)`** at the start of the prompt, which confirms the environment is active.
-- **Status Bar**: The bottom-right corner of VS Code will now display the Python interpreter from your `.venv`.
+- **Terminal**: The terminal prompt should show `(.venv)` when the environment is active
+- **Status Bar**: The bottom-right corner of VS Code should display the Python interpreter from your `.venv`
+- **Check Python path**: Run `which python` (Mac/Linux) or `where python` (Windows) to confirm it points to your virtual environment
 
 ---
-
