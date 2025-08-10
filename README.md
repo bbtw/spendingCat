@@ -23,7 +23,6 @@ Launch Visual Studio Code on your computer.
 
 ### 2. Open the Command Palette
 - **Mac**: `Cmd+Shift+P`
-- **Windows/Linux**: `Ctrl+Shift+P`
 
 ---
 
@@ -51,7 +50,7 @@ Launch Visual Studio Code on your computer.
 
 ---
 
-## You're Done!
+## Project Cloned
 The project is now cloned to your local machine and open in VS Code. The next step is to set up the Python environment.
 
 ## Troubleshooting
