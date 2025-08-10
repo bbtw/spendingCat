@@ -35,7 +35,7 @@ Launch Visual Studio Code on your computer.
 ---
 
 ### 4. Enter the Repository URL
-- Paste the Git repository URL (e.g., `https://github.com/username/repository-name.git`)
+- Paste the Git repository URL (`https://github.com/bbtw/spendingCat.git`)
 - Press `Enter`
 
 ---
