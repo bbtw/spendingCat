@@ -1,0 +1,22 @@
+{
+  "Food": {
+    "Groceries": ["Harris Teeter"],
+    "Restaurants/Fast Food": ["CAVA", "Chick Fil A", "Cook Out", "DoorDash", "Uber Eats", "Grubhub", "Los Pais"]
+  },
+  "Transfers": {
+    "Zelle Out": ["Zelle payment to"],
+    "Zelle In":  ["Zelle payment from"],
+    "Internal Transfer In":  ["Online Banking transfer from"],
+    "Internal Transfer Out": ["Online Banking transfer to"]
+  },
+  "Subscriptions": {
+    "Software": ["OpenAI ChatGPT"]
+  },
+  "Shopping": {
+    "Outdoors": ["Go Outdoors"]
+  },
+  "Transport": {
+    "Fuel/Convenience": ["Sheetz"],
+    "Fuel": ["Shell"]
+  }
+}
