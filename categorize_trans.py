@@ -11,7 +11,8 @@ How it works:
 6. Picks the "most specific" match (longest text span matched) for each transaction.
 
 Usage:
-    python categorize.py --csv transactions.csv --rules rules.json --out categorized.csv --preview Food
+python categorize_trans.py --transaction_file ~/Downloads/transactions.csv --output_file_name categorized.csv --preview Food
+
 """
 
 import argparse
@@ -27,33 +28,20 @@ import pandas as pd
 # ---------------------------
 
 def first_txn_row(path: str) -> int:
-    """
-    Find the first row in the CSV that actually contains a transaction.
-    Bank of America CSVs often have summary lines before the header.
-    Transactions start with a date like MM/DD/YYYY, in the first column.
-    """
-    date_start = re.compile(r'^\s*\d{2}/\d{2}/\d{4}\s*,')  # matches e.g., "08/04/2025,"
+    """Find first transaction row in a BofA CSV."""
+    date_start = re.compile(r'^\s*\d{2}/\d{2}/\d{4}\s*,')
     with open(path, "r", encoding="utf-8", errors="ignore") as f:
         for i, line in enumerate(f):
             if date_start.match(line):
                 return i
-    return 0  # fallback: start from the top if not found
+    return 0
 
 
 def load_bofa_csv(path: str) -> pd.DataFrame:
-    """
-    Load the CSV starting at the first transaction row.
-    Keeps only the first 3 columns: Date, Description, Amount.
-    """
+    """Load BofA CSV starting at first transaction row."""
+    path = str(Path(path).expanduser())
     start = first_txn_row(path)
-    df = pd.read_csv(
-        path,
-        skiprows=start,      # skip the summary lines and header
-        header=None,         # no header since we’re defining columns manually
-        dtype=str,
-        engine="python"
-    )
-    # Keep only first 3 cols (ignore Running Balance if present)
+    df = pd.read_csv(path, skiprows=start, header=None, dtype=str, engine="python")
     df = df.iloc[:, :3].copy()
     df.columns = ["Date", "Description", "Amount"]
     return df
@@ -64,49 +52,27 @@ def load_bofa_csv(path: str) -> pd.DataFrame:
 # ---------------------------
 
 def make_loose_regex(term: str) -> re.Pattern:
-    """
-    Turn a plain string into a flexible, case-insensitive regex:
-    - Ignores capitalization (re.I).
-    - Treats spaces/dashes/punctuation as interchangeable (\W*).
-    - Avoids matching inside larger words (lookarounds).
-    """
-    # Remove accidental extra spaces from rules.json entries
+    """Convert a plain string into a flexible, case-insensitive regex."""
     term = term.strip()
-
-    # Split into tokens (words) on any non-alphanumeric character
     tokens = [t for t in re.split(r"[^\w]+", term) if t]
     if not tokens:
-        # If nothing meaningful, just escape the term literally
         return re.compile(re.escape(term), re.I)
-
-    # Join tokens with \W* to allow flexible separators in matches
     body = r"\W*".join(map(re.escape, tokens))
-
-    # Use lookarounds instead of \b to handle punctuation cleanly
-    pattern = rf"(?<![A-Z0-9]){body}(?![A-Z0-9])"
+    pattern = rf"(?<![A-Za-z0-9]){body}(?![A-Za-z0-9])"
     return re.compile(pattern, re.I)
 
 
-def load_rules_json(path: str) -> Dict[str, Dict[str, List[re.Pattern]]]:
-    """
-    Load the rules.json file and compile the plain strings into regex patterns.
-    The JSON format should be:
-    {
-      "Category": {
-        "Subcategory": ["Merchant1", "Merchant2", ...],
-        ...
-      },
-      ...
-    }
-    """
+def load_rules_json(path: Path) -> Dict[str, Dict[str, List[re.Pattern]]]:
+    """Load rules.json and compile patterns."""
     with open(path, "r", encoding="utf-8") as f:
         raw = json.load(f)
 
     compiled: Dict[str, Dict[str, List[re.Pattern]]] = {}
     for category, subs in raw.items():
-        compiled[category] = {}
-        for subcat, terms in subs.items():
-            compiled[category][subcat] = [make_loose_regex(t) for t in terms]
+        compiled[category] = {
+            subcat: [make_loose_regex(t) for t in terms]
+            for subcat, terms in subs.items()
+        }
     return compiled
 
 
@@ -115,11 +81,7 @@ def load_rules_json(path: str) -> Dict[str, Dict[str, List[re.Pattern]]]:
 # ---------------------------
 
 def best_match(desc: str, rules: Dict[str, Dict[str, List[re.Pattern]]]) -> Tuple[str, str]:
-    """
-    Try all patterns and return the (category, subcategory) of the 'most specific' hit.
-    'Most specific' means: longest matching text span found in the description.
-    If no matches are found, returns ("Uncategorized", "Other").
-    """
+    """Return (category, subcategory) of most specific match."""
     best_len = -1
     best_pair = ("Uncategorized", "Other")
 
@@ -140,21 +102,14 @@ def best_match(desc: str, rules: Dict[str, Dict[str, List[re.Pattern]]]) -> Tupl
 # ---------------------------
 
 def normalize_desc(s: str) -> str:
-    """
-    Light cleanup of the description:
-    - Removes double spaces.
-    - Strips leading/trailing whitespace and punctuation.
-    """
+    """Light cleanup of description text."""
     s = str(s or "")
     s = re.sub(r"\s{2,}", " ", s)
     return s.strip()
 
 
 def to_float(x):
-    """
-    Convert amount string to float.
-    Handles commas, dollar signs, and ignores blanks.
-    """
+    """Convert amount to float, handling commas/dollar signs."""
     try:
         s = str(x).strip()
         if s == "" or s.lower() in {"nan", "none"}:
@@ -165,10 +120,7 @@ def to_float(x):
 
 
 def merchant_hint(desc: str) -> str:
-    """
-    Extract the first few words from description for a quick merchant 'name' column.
-    This is purely cosmetic and not used for matching.
-    """
+    """Extract first few words from description for readability."""
     return " ".join(str(desc).split()[:5])
 
 
@@ -178,41 +130,32 @@ def merchant_hint(desc: str) -> str:
 
 def main():
     ap = argparse.ArgumentParser(description="Categorize BofA CSV using simple string rules (no regex authoring).")
-    ap.add_argument("--csv", required=True, help="Path to BofA CSV export")
-    ap.add_argument("--rules", default="rules.json", help="Path to rules.json (strings only)")
-    ap.add_argument("--out", default="categorized_transactions.csv", help="Output CSV path")
+    ap.add_argument("--transaction_file", required=True, help="Path to BofA CSV export")
+    ap.add_argument("--output_file_name", default="categorized_transactions.csv", help="Output CSV path")
     ap.add_argument("--preview", default="Food", help="Top-level category to preview in stdout")
     args = ap.parse_args()
 
-    # Load category rules
-    rules = load_rules_json(args.rules)
+    rules_path = Path(__file__).parent / "rules.json"
+    if not rules_path.exists():
+        raise FileNotFoundError(f"rules.json not found at {rules_path}. Put it next to main.py.")
+    rules = load_rules_json(rules_path)
 
-    # Load CSV
-    df = load_bofa_csv(args.csv)
-
-    # Clean description and amount
+    df = load_bofa_csv(args.transaction_file)
     df["Description"] = df["Description"].astype(str).apply(normalize_desc)
     df["Amount"] = df["Amount"].apply(to_float)
-
-    # Drop non-transaction rows (e.g., Beginning/Ending balance lines inside the table)
     df = df[df["Amount"].notna()].copy()
-
-    # Merchant hint column for human readability
     df["Merchant"] = df["Description"].apply(merchant_hint)
 
-    # Categorize each transaction
     pairs = df["Description"].apply(lambda d: best_match(d, rules))
     df["Category"] = pairs.apply(lambda x: x[0])
     df["Subcategory"] = pairs.apply(lambda x: x[1])
 
-    # Save results
-    Path(args.out).parent.mkdir(parents=True, exist_ok=True)
+    Path(args.output_file_name).parent.mkdir(parents=True, exist_ok=True)
     df[["Date", "Description", "Merchant", "Amount", "Category", "Subcategory"]].to_csv(
-        args.out, index=False
+        args.output_file_name, index=False
     )
-    print(f"Wrote {args.out}")
+    print(f"Wrote {args.output_file_name}")
 
-    # Show preview of one category (default: Food)
     subset = df[df["Category"] == args.preview]
     if not subset.empty:
         print(f"\n=== {args.preview.upper()} TRANSACTIONS ===")
