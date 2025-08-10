@@ -58,7 +58,7 @@ Launch Visual Studio Code on your computer.
 
 ### 1. Open the Source Control Panel
 - Click the **Source Control** icon in the left sidebar (looks like a branch)
-- Or press `Ctrl+Shift+G` (Windows/Linux) or `Cmd+Shift+G` (Mac)
+- Or press `Cmd+Shift+G` (Mac)
 
 ---
 
